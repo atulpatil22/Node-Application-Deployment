@@ -42,7 +42,7 @@ pipeline {
         stage('Pull the file off Nexus') {
             steps {
                 withCredentials([usernameColonPassword(credentialsId: 'Nexus_ID_PASS', variable: 'NEXUS_CREDENTIALS')]) {
-                    sh script: 'curl -u ${NEXUS_CREDENTIALS} -o sample-nodejs-Application_Atul-2.0.0.tgz "https://nexus.neuralcompany.team/repository/npm-hosted/sample-nodejs-Application_Atul/-/sample-nodejs-Application_Atul-2.0.0.tgz"'
+                    sh script: 'curl -u ${NEXUS_CREDENTIALS} -o sample-nodejs-Application_Atul-1.0.0.tgz "https://nexus.neuralcompany.team/repository/npm-hosted/sample-nodejs-Application_Atul/-/sample-nodejs-Application_Atul-1.0.0.tgz"'
                     
                 }  
                     sh 'ls /home/jenkins/agent/workspace/build_task_Atul/'   
