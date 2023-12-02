@@ -1,0 +1,69 @@
+pipeline {
+    agent {label 'k8-slaves-node-21'}
+    environment {
+        GITLAB_REPO_URL_V1 = 'https://git.neuralcompany.team/xs004-parbha/sample-nodejs.git'
+        GITLAB_REPO_URL_V2 = 'https://git.neuralcompany.team/xs004-parbha/sample-nodejs.git'
+        GITLAB_CREDENTIALS_ID = 'gitlab-svc-account' // Set up in Jenkins
+        NEXUS_CREDENTIALS_ID = credentials('nexus_ap')
+        
+
+    }
+    stages {
+
+    stage('Clone Repository for Required Git Branch') {
+            steps { 
+                script {
+                    deleteDir()
+                    def branchChoice = input(
+                        id: 'branchChoice',
+                        message: 'Select the branch to clone:',
+                        parameters: [
+                            choice(
+                                choices: ['master', 'atul_v1', 'atul_v2'],
+                                description: 'Choose the branch',
+                                name: 'GIT_BRANCH'
+                            )
+                        ]
+                    )
+                    git branch: branchChoice, credentialsId: 'gitlab-svc-account', url: 'https://git.neuralcompany.team/xs004-parbha/sample-nodejs.git'
+                }
+            }
+        }  
+
+
+        stage('Nexus build V1 and Upload'){
+            steps{
+                    sh '''cat $NEXUS_CREDENTIALS_ID > .npmrc
+                    npm publish
+                    '''
+                }
+            }
+
+        stage('Pull the file off Nexus') {
+            steps {
+                withCredentials([usernameColonPassword(credentialsId: 'Nexus_ID_PASS', variable: 'NEXUS_CREDENTIALS')]) {
+                    sh script: 'curl -u ${NEXUS_CREDENTIALS} -o sample-nodejs-Application_Atul-2.0.0.tgz "https://nexus.neuralcompany.team/repository/npm-hosted/sample-nodejs-Application_Atul/-/sample-nodejs-Application_Atul-2.0.0.tgz"'
+                    
+                }  
+                    sh 'ls /home/jenkins/agent/workspace/build_task_Atul/'   
+            }   
+        }
+
+        stage('Deploy Nodejs application:V1 through Ansible') {
+            steps {
+            
+                
+                    sh '''
+                    ls
+                    chmod 600 NewEC2.pem
+                    ansible-playbook -i /home/jenkins/agent/workspace/build_task_Atul/hosts /home/jenkins/agent/workspace/build_task_Atul/Ansible.yml
+                    
+                    '''
+                
+            }   
+        }                
+       
+        
+
+}
+}
