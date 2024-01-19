@@ -1,0 +1,67 @@
+- hosts: all
+  become: True
+  become_user: root
+  tasks:
+
+    # - name: copy files.txt file to remote machine
+    #   copy:
+    #     src: /home/xs378-atupat/Downloads/NewEC2.pem 
+    #     dest: /home/admin/
+    #     owner: ubuntu
+    #     group: vm1
+    #     mode: 0644
+           
+    - name: "apt-get update"
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+
+    - name: "Install Node and npm"
+      apt:
+        pkg:
+          - nodejs
+          - npm
+
+    # - name: Update apt cache and make sure Unzip is installed
+    #   apt:
+    #     name: unzip
+    #     update_cache: yes
+
+    - name: V1 directory
+      ansible.builtin.file:
+        path: /home/ubuntu/V1
+        state: directory
+        mode: '0755'
+
+
+    - name: Copy Version_1 Artificats
+      ansible.builtin.copy:
+        src: /home/jenkins/agent/workspace/build_task_Atul/sample-nodejs-Application_Atul-1.0.0.tgz
+        dest: /home/ubuntu/V1/
+        mode: '0644'
+        follow: yes 
+        
+
+    - name: Extract the file
+      ansible.builtin.unarchive:
+        src: /home/ubuntu/V1/sample-nodejs-Application_Atul-1.0.0.tgz
+        dest: /home/ubuntu/V1/
+        remote_src: yes
+      become: yes
+
+
+    - name: copy systemd file
+      copy:
+        src: /home/jenkins/agent/workspace/build_task_Atul/myservice.service 
+        dest: /etc/systemd/system/
+        mode: '0644'
+        follow: yes 
+
+
+    - name: Enable Myservice
+      systemd:
+        name: myservice.service
+        daemon_reload: yes
+        enabled: yes
+        state: restarted

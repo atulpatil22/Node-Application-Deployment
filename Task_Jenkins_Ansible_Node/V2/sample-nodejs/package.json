@@ -1,0 +1,24 @@
+{
+  "name": "sample-nodejs-Application_Atul",
+  "version": "2.0.0",
+  "description": "",
+  "main": "app.js",
+  "publishConfig": {
+  "registry": "https://nexus.neuralcompany.team/repository/npm-hosted/"
+  }, 
+  "scripts": {
+    "start": "node app.js",
+    "stop": "pkill --signal SIGINT app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.neuralcompany.team/xs004-parbha/sample-nodejs.git"
+  },
+  "engines" : {
+  "npm" : "8.5.1",
+  "node" : "v12.22.9"
+  },  
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
